@@ -1,35 +1,73 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from "react";
+import "./App.css";
+import PostComponent from "./components/PostComponent";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [posts, setPosts] = useState([]);
+
+  const handleSubmit = function (event) {
+    event.preventDefault();
+    const inputValue = document.getElementById("input").value;
+
+    if (inputValue === "") {
+      alert("The post you're trying to submit is empty");
+    } else {
+      const data = { text: inputValue, postId: Date.now() };
+
+      setPosts((prevPosts) => [...prevPosts, data]);
+      document.getElementById("input").value = ""; // Clear the input after posting
+    }
+  };
+
+  const handleDelete = function (id) {
+    setPosts((prevPosts) => prevPosts.filter((post) => post.postId !== id));
+  };
+
+  const handleEdit = function (id, newText) {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.postId === id ? { ...post, text: newText } : post
+      )
+    );
+  };
+
+  useEffect(() => {
+    console.log(posts); // Log posts after state has been updated
+  }, [posts]);
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="App">
+      <h1>Social Media App</h1>
+      <div className="container">
+        <div className="left">
+          <form id="form" onSubmit={handleSubmit}>
+            <label htmlFor="post">Write your post here</label>
+            <br />
+            <br />
+            <textarea name="post" id="input" cols="30" rows="10"></textarea>
+            <br />
+            <br />
+            <div id="msg"></div>
+            <button type="submit">Post</button>
+          </form>
+        </div>
+        <div className="right">
+          <h3>Your posts here</h3>
+          <div id="posts">
+            {posts.map((post) => (
+              <PostComponent
+                key={post.postId}
+                text={post.text}
+                postId={post.postId}
+                onDelete={handleDelete}
+                onEdit={handleEdit}
+              />
+            ))}
+          </div>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;

@@ -1,40 +1,55 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
-export default function PostComponent(props) {
-  const { ownPost, setPosts, postsState } = props;
+export default function PostComponent({ text, postId, onDelete, onEdit }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [editedText, setEditedText] = useState(text);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleEdit = (id) => {
-    if (isEditing === false) {
-      console.log(
-        postsState.map((post) => {
-          return post.id === id ? { ...post, hola: "hola" } : post;
-        })
-      );
+  const handleEdit = async () => {
+    if (isEditing) {
+      setIsLoading(true);
+      try {
+        await onEdit(postId, editedText);
+        setIsEditing(false);
+      } catch (error) {
+        console.error("Failed to edit post:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setIsEditing(true);
     }
   };
 
-  const handleDelete = () => {
-    console.log("deleted");
-    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== ownPost.id));
+  const handleDelete = async () => {
+    setIsLoading(true);
+    try {
+      await onDelete(postId);
+    } catch (error) {
+      console.error("Failed to delete post:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="single-post">
-      {isEditing ? <textarea></textarea> : <p>{ownPost.text}</p>}
+      {isEditing ? (
+        <textarea
+          value={editedText}
+          onChange={(e) => setEditedText(e.target.value)}
+          disabled={isLoading}
+        />
+      ) : (
+        <p>{text}</p>
+      )}
       <span className="options">
-        <i
-          className="fas fa-edit"
-          onClick={() => {
-            handleEdit(ownPost.id);
-          }}
-        ></i>
-        <i
-          className="fas fa-trash-alt"
-          onClick={() => {
-            handleDelete();
-          }}
-        ></i>
+        <button onClick={handleEdit} disabled={isLoading}>
+          {isEditing ? (isLoading ? "Saving..." : "Save") : "Edit"}
+        </button>
+        <button onClick={handleDelete} disabled={isLoading}>
+          {isLoading ? "Deleting..." : "Delete"}
+        </button>
       </span>
     </div>
   );

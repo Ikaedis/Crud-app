@@ -3,38 +3,18 @@ import "./App.css";
 import PostComponent from "./components/PostComponent";
 
 function App() {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState([{ text: "text1", id: 1 }]);
 
-  const handleSubmit = function (event) {
-    event.preventDefault();
-    const inputValue = document.getElementById("input").value;
-
-    if (inputValue === "") {
-      alert("The post you're trying to submit is empty");
-    } else {
-      const data = { text: inputValue, postId: Date.now() };
-
-      setPosts((prevPosts) => [...prevPosts, data]);
-      document.getElementById("input").value = ""; // Clear the input after posting
-    }
-  };
-
-  const handleDelete = function (id) {
-    setPosts((prevPosts) => prevPosts.filter((post) => post.postId !== id));
-  };
-
-  const handleEdit = function (id, newText) {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) =>
-        post.postId === id ? { ...post, text: newText } : post
-      )
-    );
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const text = document.getElementById("input").value;
+    const newPostData = { text: text, id: Date.now() };
+    setPosts([...posts, newPostData]);
   };
 
   useEffect(() => {
-    console.log(posts); // Log posts after state has been updated
+    console.log(posts);
   }, [posts]);
-
   return (
     <div className="App">
       <h1>Social Media App</h1>
@@ -54,13 +34,12 @@ function App() {
         <div className="right">
           <h3>Your posts here</h3>
           <div id="posts">
-            {posts.map((post) => (
+            {posts.map((post, index) => (
               <PostComponent
-                key={post.postId}
-                text={post.text}
-                postId={post.postId}
-                onDelete={handleDelete}
-                onEdit={handleEdit}
+                key={index}
+                ownPost={post}
+                setPosts={setPosts}
+                postsState={posts}
               />
             ))}
           </div>

@@ -4,6 +4,7 @@ import PostComponent from "./components/PostComponent";
 
 function App() {
   const [posts, setPosts] = useState([]);
+  const [inputValue, setInputValue] = useState("");
 
   const handleSubmit = function (event) {
     event.preventDefault();
@@ -15,7 +16,7 @@ function App() {
       const data = { text: inputValue, postId: Date.now() };
 
       setPosts((prevPosts) => [...prevPosts, data]);
-      document.getElementById("input").value = ""; // Clear the input after posting
+      setInputValue(""); // Clear the input after posting
     }
   };
 
@@ -44,7 +45,16 @@ function App() {
             <label htmlFor="post">Write your post here</label>
             <br />
             <br />
-            <textarea name="post" id="input" cols="30" rows="10"></textarea>
+            <textarea
+              value={inputValue}
+              onChange={(e) => {
+                setInputValue(e.target.value);
+              }}
+              name="post"
+              id="input"
+              cols="30"
+              rows="10"
+            ></textarea>
             <br />
             <br />
             <div id="msg"></div>
